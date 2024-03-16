@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en"></html>
+<head>
+    <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+     <!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+ crossorigin=""></script>
+ <style>#map { height: 700px; width: 500    ;}</style>
+</head>
+<body>
+    <div id="map">
+        <script>
+            navigator.geolocation.
+            getCurrentPosition((position) => {
+                let{
+                    latitude,
+                    longitude
+                } = position.coords;
+                var map = L.map('map').setView
+                ([latitude, longitude], 19);
+
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    minZoom: 1,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+            L.marker([latitude, longitude]).addTo(map);
+            });
+        </script>
+        <script>
+            function recommendLocations(location) {
+      var latitude = location.coords.latitude;
+      var longitude = location.coords.longitude;
+
+      // Set map view to user's current location
+      map.setView([latitude, longitude], 13);
+
+      // Fetch nearby locations using OpenStreetMap Nominatim API
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
+        .then(response => response.json())
+        .then(data => {
+          // Data contains information about the user's current location
+          // You can extract relevant details and perform further operations
+
+          // For example, you can display the address or other details
+          L.marker([latitude, longitude]).addTo(map)
+            .bindPopup(`<b>Your Current Location:</b><br>${data.display_name}`).openPopup();
+        })
+        .catch(error => {
+          console.error('Error fetching location data:', error);
+        });
+    }
+
+    // Function to handle errors in geolocation
+    function handleLocationError(error) {
+      alert('Error getting location: ' + error.message);
+    }
+
+    // Get user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(recommendLocations, handleLocationError);
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
+        </script>
+    </div>
+</body>
